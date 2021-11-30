@@ -9,12 +9,15 @@ export default class DiffTab extends Tab {
     constructor(...args) {
         super(...args)
             .setData({
-                leftValue: '',
-                rightValue: ''
+                leftValue: window.leftDiffContent,
+                rightValue: window.rightDiffContent
             })
             .on({
                 tabfocus: () => {
                     this.leftEditor.focus();
+                },
+                afterrender: () => {
+                    this.leftEditor.lint();
                 }
             })
             .bindNode('content', <Content owner={this} />)
@@ -29,7 +32,7 @@ export default class DiffTab extends Tab {
             orig: this.rightValue || '',
             highlightDifferences: true,
             collapseIdentical: false,
-            allowEditingOriginals: true
+            allowEditingOriginals: true,
         });
 
         this.set({

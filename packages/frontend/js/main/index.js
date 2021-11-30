@@ -15,7 +15,7 @@ export default class Main extends Seemple {
             .instantiate('tabs', Tabs)
             .set({
                 memo: {},
-                mode: this.mode || 'simple',
+                mode: 'diff',
                 defaultView: this.toJSONString(),
                 saved: true,
                 loading: true
@@ -29,17 +29,9 @@ export default class Main extends Seemple {
                     source: 'params',
                     handler: (params) => 'fullscreen' in qs.parse(params)
                 },
-                reformat: {
-                    source: 'params',
-                    handler: (params) => (qs.parse(params).reformat || 'beautify_tabs')
-                },
-                sortAlphabetically: {
-                    source: 'params',
-                    handler: (params) => 'sortAlphabetically' in qs.parse(params)
-                },
                 params: {
-                    source: ['id', 'fullscreen', 'reformat', 'sortAlphabetically'],
-                    handler(id, fullscreen, reformat, sortAlphabetically) {
+                    source: ['id', 'fullscreen'],
+                    handler(id, fullscreen) {
                         const params = [];
 
                         if (id) {
@@ -48,14 +40,6 @@ export default class Main extends Seemple {
 
                         if (fullscreen) {
                             params.push('fullscreen');
-                        }
-
-                        if (reformat !== 'beautify_tabs') {
-                            params.push(`reformat=${reformat}`);
-                        }
-
-                        if (sortAlphabetically) {
-                            params.push('sortAlphabetically');
                         }
 
                         return params.join('&');
@@ -74,21 +58,6 @@ export default class Main extends Seemple {
             .on({
                 'tabs@change:activeTab': (evt) => {
                     this.mode = evt.value.name;
-                },
-                'change:id': ({ fromSave }) => {
-                    if (this.id && !fromSave) {
-                        this.restore(this.id);
-                    }
-                },
-                'keydown::win': (evt) => {
-                    const S_KEY_CODE = 83;
-                    const { domEvent: { ctrlKey, keyCode } } = evt;
-                    if (keyCode === S_KEY_CODE && ctrlKey) {
-                        evt.preventDefault();
-                        if (!this.saved) {
-                            this.save();
-                        }
-                    }
                 }
             })
             .on('change:mode', () => {
@@ -104,36 +73,17 @@ export default class Main extends Seemple {
 
         document.querySelector('main').appendChild(this.nodes.sandbox);
 
-        if (this.id) {
-            this.restore(this.id);
-        } else {
-            this.loading = false;
-        }
+        this.loading = false;
 
         Seemple.on(LintEditor, {
             lint: (instance) => {
-                const { reformat, sortAlphabetically } = this;
                 let { code } = instance;
 
-                if (sortAlphabetically) {
-                    code = JSON.stringify(jsonabc.sortObj(JSON.parse(code)));
-                }
+                code = JSON.stringify(jsonabc.sortObj(JSON.parse(code)));
 
-                if (reformat === 'minify') {
-                    code = minify(code);
-                } else if (reformat === 'beautify_tabs') {
-                    code = beautify.js_beautify(code, {
-                        indent_with_tabs: true
-                    });
-                } else if (reformat === 'beautify_2') {
-                    code = beautify.js_beautify(code, {
-                        indent_size: 2
-                    });
-                } else if (reformat === 'beautify_4') {
-                    code = beautify.js_beautify(code, {
-                        indent_size: 4
-                    });
-                }
+                code = beautify.js_beautify(code, {
+                    indent_size: 2
+                });
 
                 instance.set({ code }, {
                     fromReformat: true
@@ -146,20 +96,6 @@ export default class Main extends Seemple {
                 this.loading = false;
             }
         });
-
-        window.onbeforeunload = this.beforeUnload.bind(this);
-    }
-
-    beforeUnload() {
-        if (!this.saved) {
-            return 'Entered data is not saved. Are you sure want to leave the page?';
-        }
-
-        return undefined;
-    }
-
-    onClickSave() {
-        this.save();
     }
 
     onClickFullscreen() {
@@ -172,68 +108,6 @@ export default class Main extends Seemple {
         this.errorTimeout = setTimeout(() => {
             this.errorText = '';
         }, 5000);
-    }
-
-    async save() {
-        const body = this.toJSONString();
-        let foundId;
-
-        this.loading = true;
-
-        for (const [memoId, memoBody] of Object.entries(this.memo)) {
-            if (memoBody === body) {
-                foundId = memoId;
-            }
-        }
-
-        if (foundId) {
-            this.set('id', foundId, {
-                fromSave: true
-            });
-
-            this.saved = true;
-        } else {
-            try {
-                const { error, key } = await (
-                    await fetch('/api/save', {
-                        method: 'post',
-                        body
-                    })
-                ).json();
-
-                if (error) {
-                    this.error(error);
-                } else {
-                    this.set('id', key, {
-                        fromSave: true
-                    });
-
-                    this.memo[key] = body;
-                    this.saved = true;
-                }
-            } catch (error) {
-                this.error(error);
-            }
-        }
-
-        this.loading = false;
-    }
-
-    async restore(id) {
-        this.loading = true;
-
-        if (this.memo[id]) {
-            this.fromJSONString(this.memo[id]);
-        } else {
-            const resp = await (
-                await fetch(`//jsonlintcom.s3.amazonaws.com/${id}.json`)
-            ).text();
-
-            this.memo[id] = resp;
-            this.fromJSONString(resp);
-        }
-
-        this.loading = false;
     }
 
     toJSONString() {

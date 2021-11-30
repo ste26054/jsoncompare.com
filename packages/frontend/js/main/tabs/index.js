@@ -8,22 +8,22 @@ import Nav from './components/nav';
 export default class Tabs extends SeempleObject {
     constructor() {
         super({
-            simple: {
-                title: 'Simple',
-                description: 'Simple JSON validation'
-            },
-            batch: {
-                title: 'Batch',
-                description: 'Validate multiple JSON objects at once'
-            },
+            // simple: {
+            //     title: 'Simple',
+            //     description: 'Simple JSON validation'
+            // },
+            // batch: {
+            //     title: 'Batch',
+            //     description: 'Validate multiple JSON objects at once'
+            // },
             diff: {
                 title: 'Diff',
                 description: 'Compare and merge two JSON objects'
             }
         })
             .instantiate({
-                simple: SimpleTab,
-                batch: BatchTab,
+                // simple: SimpleTab,
+                // batch: BatchTab,
                 diff: DiffTab
             })
             .bindSandbox(<Sandbox owner={this} />)
@@ -40,7 +40,7 @@ export default class Tabs extends SeempleObject {
                 }
             });
 
-        this.simple.isActive = true;
+        this.diff.isActive = true;
     }
 
     onNavItemClick(item) {

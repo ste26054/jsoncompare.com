@@ -15,7 +15,7 @@ if (!NODE_ENV) {
 module.exports = {
     devtool: 'module-source-map',
     context: `${root}/packages/frontend`,
-    optimization: { minimize: true },
+    optimization: { minimize: false },
     module: moduleConf,
     entry,
     plugins,

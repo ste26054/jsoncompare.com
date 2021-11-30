@@ -73,11 +73,9 @@ export default class LintEditor extends SeempleObject {
         });
 
         this.nodes.sandbox.appendChild(<Extras owner={this} />);
+        this.lint();
     }
 
-    onClearButtonClick() {
-        this.code = '';
-    }
 
     onLintButtonClick() {
         if (isUri(this.code.trim())) {
@@ -95,6 +93,7 @@ export default class LintEditor extends SeempleObject {
                     this.errorText = '';
                     this.validated = false;
                 }
+                this.lint();
             })
             .on('lint', () => {
                 trigger(LintEditor, 'lint', this);
@@ -107,7 +106,6 @@ export default class LintEditor extends SeempleObject {
 
     lint() {
         const { code } = this;
-
         try {
             jsonlint.parse(code);
             this.validated = true;
