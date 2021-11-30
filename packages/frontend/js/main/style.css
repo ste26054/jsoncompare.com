@@ -3,7 +3,7 @@
     flex: 1;
     flex-direction: column;
     position: relative;
-    min-height: 400px;
+    min-height: 600px;
     background: #fafbfc;
     body[data-fullscreen="on"] & {
         position: fixed;

@@ -29,8 +29,7 @@ const plugins = [
 
 if (NODE_ENV === 'development') {
     plugins.push(
-        new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.optimize.OccurrenceOrderPlugin()
     );
 }
 

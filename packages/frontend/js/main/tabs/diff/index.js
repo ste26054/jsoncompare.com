@@ -51,14 +51,14 @@ export default class DiffTab extends Tab {
 
     toJSON() {
         return {
-            left: btoa(this.leftValue),
-            right: btoa(this.rightValue)
+            left: this.leftValue.toString('base64'),
+            right: this.rightValue.toString('base64')
         };
     }
 
     fromJSON(value) {
-        this.leftValue = atob(value.left);
-        this.rightValue = atob(value.right);
+        this.leftValue = Buffer.from(value.left, 'base64');
+        this.rightValue = Buffer.from(value.right, 'base64');
         return this;
     }
 }

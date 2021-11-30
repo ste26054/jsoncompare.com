@@ -9,7 +9,7 @@
     "start": "npm run serve-prod",
     "serve-prod": "pm2 startOrRestart ecosystem.json --env production --watch",
     "dev": "open-cli http://localhost:5001; PORT=5001 NODE_ENV=development nodemon packages/backend --ignore 'frontend/*' --ignore 'public/*' --ignore 'node_modules/*'",
-    "build": "npm run clean; NODE_ENV=production webpack --config ./webpack/webpack.config.js --mode production",
+    "build": "npm run clean; NODE_ENV=development webpack --no-inline --config ./webpack/webpack.config.js --mode development",
     "check-updates": "ncu; ncu --packageFile ./frontend/package.json",
     "upgrade": "ncu -u && npm install && lerna exec --concurrency 1 -- ncu -u && lerna exec --concurrency 1 -- npm install",
     "install-all": "npm install && lerna exec --concurrency 1 -- npm install",
@@ -104,5 +104,8 @@
   },
   "peerDependencies": {
     "pm2": "^4"
+  },
+  "dependencies": {
+    "all": "^0.0.0"
   }
 }

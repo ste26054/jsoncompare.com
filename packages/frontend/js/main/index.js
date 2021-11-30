@@ -79,8 +79,6 @@ export default class Main extends Seemple {
             lint: (instance) => {
                 let { code } = instance;
 
-                code = JSON.stringify(jsonabc.sortObj(JSON.parse(code)));
-
                 code = beautify.js_beautify(code, {
                     indent_size: 2
                 });
